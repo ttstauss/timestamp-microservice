@@ -6,7 +6,7 @@ var express = require('express');
 var app = express();
 
 // third pary modules
-const moment = require('moment-timezone')
+const moment = require('moment')
 
 // enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
 // so that your API is remotely testable by FCC 
@@ -21,7 +21,6 @@ app.get("/", function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
 
-
 // your first API endpoint... 
 app.get("/api/timestamp/", (req, res) => {
   res.json({time: new Date()})
@@ -32,17 +31,17 @@ app.get("/api/timestamp/:date_string", function (req, res) {
   const dateString = req.params.date_string
   
   if (+dateString === +dateString) {
-    return res.json({'unix': +moment.unix(dateString).format('x'), 'utc': moment.tz(dateString).format('ddd, D MMM YYYY HH:mm;ss z')})
-  }
-  
-  if (moment(dateString).isValid()) {
-    return res.json({'unix': +moment(dateString).format('x'), 'utc': moment.tz(dateString).format('ddd, D MMM YYYY HH:mm;ss z')})
+    console.log('number')
+    const dateObj = new Date(+dateString)
+    res.json({'unix': dateObj.getTime(), 'utc': dateObj.toUTCString()})
+  } else if (moment(dateString).isValid()) {
+    console.log('string')
+    const dateObj = new Date(dateString)
+    res.json({'unix': dateObj.getTime(), 'utc': dateObj.toUTCString()})
   } else {
-    return res.json({'unix': null, 'utc': 'Invalid Date'})
+    res.json({'error': 'Invalid Date'})
   }
 });
-
-
 
 // listen for requests :)
 var listener = app.listen(process.env.PORT, function () {
